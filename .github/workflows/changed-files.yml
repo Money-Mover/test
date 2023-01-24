@@ -14,6 +14,8 @@ jobs:
     if: github.event.review.state == 'approved'
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.result.outputs.success }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -34,3 +36,22 @@ jobs:
       - name: Fail if files have changed
         if: steps.changed-files.outputs.any_changed == 'true'
         run: exit 1
+
+      - id: result
+        run: echo "::set-output name=success::true"
+
+  ci:
+    runs-on: ubuntu-20.04
+    if: always() # always run, so we never skip the check
+    needs: [build]
+    steps:
+      # pass step only when output of previous job is passes
+      - run: |
+          passed="${{ needs.build.outputs.success }}"
+          if [[ $passed == "true" ]]; then
+            echo "CI passed"
+            exit 0
+          else
+            echo "CI failed"
+            exit 1
+          fi
