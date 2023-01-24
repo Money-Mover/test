@@ -30,7 +30,6 @@ jobs:
         uses: tj-actions/changed-files@v35
         with:
           files: |
-            config/dev/test.json
             config/prod/test.json
 
       # Runs a set of commands using the runners shell
